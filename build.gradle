@@ -1,0 +1,25 @@
+plugins {
+    id "io.franzbecker.gradle-lombok" version "2.2"
+}
+
+group 'tech.aomi.common'
+version '1.0.0'
+
+apply from: 'https://onegit.com/enterprise/public/raw/master/libraries.gradle'
+apply from: 'https://onegit.com/enterprise/public/raw/master/java.gradle'
+apply from: 'https://onegit.com/enterprise/public/raw/master/idea.gradle'
+apply from: 'https://onegit.com/enterprise/public/raw/master/publishing-with-source.gradle'
+// apply from: './publishing.gradle'
+
+repositories {
+    maven { url "${project.'repo.url'}" }
+    mavenCentral()
+}
+
+dependencies {
+
+    compileOnly lib.spring_data_commons
+//
+//
+//    compileOnly 'tech.aomi.common:exception:1.0.0'
+}
