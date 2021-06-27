@@ -1,6 +1,7 @@
 package tech.aomi.common.service.review;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import tech.aomi.common.entity.review.*;
@@ -17,6 +18,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 @Slf4j
 public class ReviewUtils {
+
+    public static final String[] IGNORE_PROPERTIES = new String[]{"id", "lastReviewId", "reviewStatus"};
 
     /**
      * 创建审核记录
@@ -138,5 +141,17 @@ public class ReviewUtils {
         review.setResult(result);
         review.setResultDescribe(resultDescribe);
         return review;
+    }
+
+    public static void copy(Object source, Object target, String... ignoreProperties) {
+        String[] s;
+        if (null == ignoreProperties) {
+            s = IGNORE_PROPERTIES;
+        } else {
+            s = new String[ignoreProperties.length + IGNORE_PROPERTIES.length];
+            System.arraycopy(ignoreProperties, 0, s, 0, ignoreProperties.length);
+            System.arraycopy(IGNORE_PROPERTIES, 0, s, ignoreProperties.length, IGNORE_PROPERTIES.length);
+        }
+        BeanUtils.copyProperties(source, target, s);
     }
 }
