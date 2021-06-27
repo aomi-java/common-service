@@ -7,6 +7,7 @@ import tech.aomi.common.entity.review.*;
 import tech.aomi.common.entity.system.Operator;
 import tech.aomi.common.exception.AccessDeniedException;
 import tech.aomi.common.exception.CustomErrorMessageException;
+import tech.aomi.common.exception.ResourceNonExistException;
 import tech.aomi.common.exception.ResourceStatusException;
 
 import java.util.ArrayList;
@@ -17,7 +18,56 @@ import java.util.concurrent.atomic.AtomicReference;
 @Slf4j
 public class ReviewUtils {
 
-    public static <T extends Review> T review(T review, Operator<?> operator, ReviewResult result, String resultDescribe) {
+    /**
+     * 创建审核记录
+     *
+     * @param review        审核记录实例
+     * @param reviewProcess 审核流程
+     * @param operator      操作员信息
+     * @param describe      变更说明
+     * @param <T>           审核实例
+     * @return 审核实例记录
+     */
+    public static <R, T extends Review<R>> T create(T review, R before, R after, ReviewProcess reviewProcess, Operator<?> operator, String describe) {
+        if (null == reviewProcess) {
+            throw new ResourceNonExistException("未配置审核流程");
+        } else if (null == reviewProcess.getChain()) {
+            throw new ResourceNonExistException("当前审核链中未配置审核用户");
+        }
+
+        review.setReviewProcess(reviewProcess);
+        review.setCurrentReviewUserIndex(0);
+        review.setNextReviewUserIndex(1);
+        review.setStatus(ReviewStatus.WAIT);
+
+        List<ReviewHistory> histories = new ArrayList<>();
+        ReviewHistory reviewHistory = new ReviewHistory();
+        reviewHistory.setDescribe(describe);
+        reviewHistory.setUser(operator);
+        reviewHistory.setReviewAt(new Date());
+        reviewHistory.setResult(ReviewResult.RESOLVE);
+        histories.add(reviewHistory);
+        review.setHistories(histories);
+
+        review.setDescribe(describe);
+        review.setCreateAt(new Date());
+        review.setBefore(before);
+        review.setAfter(after);
+
+        return review;
+    }
+
+    /**
+     * 审核
+     *
+     * @param review         待审核记录
+     * @param operator       操作员信息
+     * @param result         审核结果
+     * @param resultDescribe 审核结果说明
+     * @param <T>            具体审核实例
+     * @return 审核实例
+     */
+    public static <T extends Review<?>> T review(T review, Operator<?> operator, ReviewResult result, String resultDescribe) {
         if (review.getStatus() == ReviewStatus.FINISH) {
             LOGGER.error("审核流程已经结束: {}", review.getStatus());
             throw new ResourceStatusException("审核流程已结束");
