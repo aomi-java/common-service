@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'tech.aomi.common'
-version '1.0.3-Alpha.0'
+version '1.0.3-Alpha.1'
 
 apply from: 'https://onegit.com/enterprise/public/raw/master/libraries.gradle'
 apply from: 'https://onegit.com/enterprise/public/raw/master/spring-libraries.gradle'
@@ -30,6 +30,6 @@ dependencies {
     compileOnly spring.data_commons
     compileOnly spring.data_mongodb
 
-    compileOnly 'tech.aomi.common:entity:1.0.2'
+    compileOnly 'tech.aomi.common:entity:1.0.3-Alpha.1'
     compileOnly "tech.aomi.common:exception:1.0.0"
 }

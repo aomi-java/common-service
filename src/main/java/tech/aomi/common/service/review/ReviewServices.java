@@ -3,7 +3,7 @@ package tech.aomi.common.service.review;
 
 import tech.aomi.common.entity.review.Review;
 import tech.aomi.common.entity.review.ReviewResult;
-import tech.aomi.common.entity.system.Operator;
+import tech.aomi.common.entity.review.ReviewUser;
 
 /**
  * 审核服务
@@ -17,10 +17,12 @@ public interface ReviewServices {
      *
      * @param clazz          审核信息真实对象class
      * @param reviewId       审核内容ID
-     * @param operator       审核操作员
+     * @param reviewUser     审核用户
      * @param result         审核结果
      * @param resultDescribe 审核结果说明
+     * @param <T>            审核记录类型
+     * @param <R>            审核资源类型
      */
-    <T extends Review> T review(Class<T> clazz, String reviewId, Operator<?> operator, ReviewResult result, String resultDescribe);
+    <T extends Review<R>, R> T review(Class<T> clazz, String reviewId, ReviewUser reviewUser, ReviewResult result, String resultDescribe);
 
 }

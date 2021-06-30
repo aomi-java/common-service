@@ -5,7 +5,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import tech.aomi.common.entity.review.*;
-import tech.aomi.common.entity.system.Operator;
 import tech.aomi.common.exception.AccessDeniedException;
 import tech.aomi.common.exception.CustomErrorMessageException;
 import tech.aomi.common.exception.ResourceNonExistException;
@@ -26,12 +25,12 @@ public class ReviewUtils {
      *
      * @param review        审核记录实例
      * @param reviewProcess 审核流程
-     * @param operator      操作员信息
+     * @param reviewUser    操作员信息
      * @param describe      变更说明
      * @param <T>           审核实例
      * @return 审核实例记录
      */
-    public static <R, T extends Review<R>> T create(T review, R before, R after, ReviewProcess reviewProcess, Operator<?> operator, String describe) {
+    public static <R, T extends Review<R>> T create(T review, R before, R after, ReviewProcess reviewProcess, ReviewUser reviewUser, String describe) {
         if (null == reviewProcess) {
             throw new ResourceNonExistException("未配置审核流程");
         } else if (null == reviewProcess.getChain()) {
@@ -46,7 +45,7 @@ public class ReviewUtils {
         List<ReviewHistory> histories = new ArrayList<>();
         ReviewHistory reviewHistory = new ReviewHistory();
         reviewHistory.setDescribe(describe);
-        reviewHistory.setUser(operator);
+        reviewHistory.setUser(reviewUser);
         reviewHistory.setReviewAt(new Date());
         reviewHistory.setResult(ReviewResult.RESOLVE);
         histories.add(reviewHistory);
@@ -97,33 +96,33 @@ public class ReviewUtils {
      * @param <T>            具体审核实例
      * @return 审核实例
      */
-    public static <T extends Review<?>> T review(T review, Operator<?> operator, ReviewResult result, String resultDescribe) {
+    public static <T extends Review<?>> T review(T review, ReviewUser reviewUser, ReviewResult result, String resultDescribe) {
         if (review.getStatus() == ReviewStatus.FINISH) {
             LOGGER.error("审核流程已经结束: {}", review.getStatus());
             throw new ResourceStatusException("审核流程已结束");
         }
 
-        List<ReviewUser> reviewUsers = review.getReviewProcess().getChain();
+        List<ReviewStep> reviewSteps = review.getReviewProcess().getChain();
         int currentReviewIndex = review.getCurrentReviewUserIndex();
         LOGGER.debug("当前审核组下标: {}", currentReviewIndex);
-        if (currentReviewIndex < 0 || currentReviewIndex > reviewUsers.size()) {
+        if (currentReviewIndex < 0 || currentReviewIndex > reviewSteps.size()) {
             LOGGER.error("审核流程无法获取当前审核的用户信息");
             throw new CustomErrorMessageException("96", "审核流程无法获取当前审核的用户信息");
         }
-        ReviewUser reviewUser = reviewUsers.get(currentReviewIndex);
+        ReviewStep reviewStep = reviewSteps.get(currentReviewIndex);
 
         AtomicReference<String> roleId = new AtomicReference<>("");
 
         boolean canReview;
-        if (StringUtils.hasLength(reviewUser.getUserId()) && reviewUser.getUserId().equals(operator.getId())) {
+        if (StringUtils.hasLength(reviewStep.getUserId()) && reviewStep.getUserId().equals(reviewUser.getId())) {
             canReview = true;
         } else {
-            canReview = operator.getRoles().stream().anyMatch(role -> {
+            canReview = reviewUser.getRoles().stream().anyMatch(role -> {
                 //指定用户审核时非法用户提交会因为缺失权限判断时会出现空指针
-                if (ObjectUtils.isEmpty(reviewUser.getRoleId())) {
+                if (ObjectUtils.isEmpty(reviewStep.getRoleId())) {
                     return false;
                 }
-                boolean tmp = reviewUser.getRoleId().equals(role.getId());
+                boolean tmp = reviewStep.getRoleId().equals(role.getId());
                 if (tmp) {
                     roleId.set(role.getId());
                 }
@@ -140,7 +139,7 @@ public class ReviewUtils {
             review.setHistories(new ArrayList<>());
         }
         ReviewHistory history = new ReviewHistory();
-        history.setUser(operator);
+        history.setUser(reviewUser);
         history.setResult(result);
         history.setDescribe(resultDescribe);
         history.setReviewAt(new Date());
