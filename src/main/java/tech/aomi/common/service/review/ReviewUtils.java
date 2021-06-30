@@ -61,6 +61,33 @@ public class ReviewUtils {
     }
 
     /**
+     * 创建审核记录，
+     * 该记录直接是完成状态,不需要审核流程
+     *
+     * @param review  审核记录实例
+     * @param history 审核结果信息
+     * @param <T>     审核实例
+     * @return 审核实例记录
+     */
+    public static <R, T extends Review<R>> T create(T review, R before, R after, ReviewHistory history) {
+        review.setCurrentReviewUserIndex(0);
+        review.setNextReviewUserIndex(-1);
+        review.setStatus(ReviewStatus.FINISH);
+
+        List<ReviewHistory> histories = new ArrayList<>();
+        histories.add(history);
+        review.setHistories(histories);
+
+        review.setDescribe(history.getDescribe());
+        review.setCreateAt(new Date());
+        review.setBefore(before);
+        review.setAfter(after);
+
+        return review;
+    }
+
+
+    /**
      * 审核
      *
      * @param review         待审核记录
