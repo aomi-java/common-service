@@ -22,6 +22,7 @@ public interface ReviewServices {
      * @param resultDescribe 审核结果说明
      * @param <T>            审核记录类型
      * @param <R>            审核资源类型
+     * @return 审核记录
      */
     <T extends Review<R>, R> T review(Class<T> clazz, String reviewId, ReviewUser reviewUser, ReviewResult result, String resultDescribe);
 

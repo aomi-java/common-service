@@ -24,10 +24,13 @@ public class ReviewUtils {
      * 创建审核记录
      *
      * @param review        审核记录实例
+     * @param before        变更前的数据
+     * @param after         变更后的数据
      * @param reviewProcess 审核流程
      * @param reviewUser    操作员信息
      * @param describe      变更说明
      * @param <T>           审核实例
+     * @param <R>           审核对象数据类型
      * @return 审核实例记录
      */
     public static <R, T extends Review<R>> T create(T review, R before, R after, ReviewProcess reviewProcess, ReviewUser reviewUser, String describe) {
@@ -64,8 +67,11 @@ public class ReviewUtils {
      * 该记录直接是完成状态,不需要审核流程
      *
      * @param review  审核记录实例
+     * @param before  变更前
+     * @param after   变更后
      * @param history 审核结果信息
      * @param <T>     审核实例
+     * @param <R>     审核对象信息
      * @return 审核实例记录
      */
     public static <R, T extends Review<R>> T create(T review, R before, R after, ReviewHistory history) {
@@ -90,7 +96,7 @@ public class ReviewUtils {
      * 审核
      *
      * @param review         待审核记录
-     * @param operator       操作员信息
+     * @param reviewUser     审核用户信息
      * @param result         审核结果
      * @param resultDescribe 审核结果说明
      * @param <T>            具体审核实例
