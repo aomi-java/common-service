@@ -10,8 +10,8 @@ import tech.aomi.common.exception.CustomErrorMessageException;
 import tech.aomi.common.exception.ResourceNonExistException;
 import tech.aomi.common.exception.ResourceStatusException;
 
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -49,13 +49,13 @@ public class ReviewUtils {
         ReviewHistory reviewHistory = new ReviewHistory();
         reviewHistory.setDescribe(describe);
         reviewHistory.setUser(reviewUser);
-        reviewHistory.setReviewAt(new Date());
+        reviewHistory.setReviewAt(Instant.now());
         reviewHistory.setResult(ReviewResult.RESOLVE);
         histories.add(reviewHistory);
         review.setHistories(histories);
 
         review.setDescribe(describe);
-        review.setCreateAt(new Date());
+        review.setCreateAt(Instant.now());
         review.setBefore(before);
         review.setAfter(after);
 
@@ -84,7 +84,7 @@ public class ReviewUtils {
         review.setHistories(histories);
 
         review.setDescribe(history.getDescribe());
-        review.setCreateAt(new Date());
+        review.setCreateAt(Instant.now());
         review.setBefore(before);
         review.setAfter(after);
 
@@ -148,7 +148,7 @@ public class ReviewUtils {
         history.setUser(reviewUser);
         history.setResult(result);
         history.setDescribe(resultDescribe);
-        history.setReviewAt(new Date());
+        history.setReviewAt(Instant.now());
         review.getHistories().add(history);
 
         //审核结果
